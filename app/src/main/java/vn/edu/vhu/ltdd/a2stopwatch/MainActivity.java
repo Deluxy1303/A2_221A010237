@@ -8,6 +8,12 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import java.util.ArrayList;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_LAPS = "laps";
 
     private TextView tvTime, tvStatus, tvRecreate, tvLaps;
+    private int normalTimeColor;
     private Button btnStartPause, btnLap, btnReset;
     private ArrayList<String> laps = new ArrayList<>();
 
@@ -47,6 +54,39 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(this, 100); // cập nhật 10 lần/giây
         }
     };
+
+    private void vibrateReset() {
+        Vibrator vibrator;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            VibratorManager vibratorManager =
+                    (VibratorManager) getSystemService(
+                            Context.VIBRATOR_MANAGER_SERVICE
+                    );
+
+            vibrator = vibratorManager.getDefaultVibrator();
+        } else {
+            vibrator = (Vibrator) getSystemService(
+                    Context.VIBRATOR_SERVICE
+            );
+        }
+
+        if (vibrator == null || !vibrator.hasVibrator()) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                            100,
+                            VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+            );
+        } else {
+            vibrator.vibrate(100);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         tvRecreate = findViewById(R.id.tvRecreate);
         tvLaps = findViewById(R.id.tvLaps);
+
+        normalTimeColor = tvTime.getCurrentTextColor();
 
         btnStartPause = findViewById(R.id.btnStartPause);
         btnLap = findViewById(R.id.btnLap);
@@ -155,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
         stopTicking();
         updateUi();
-
+        vibrateReset();
         Log.i(TAG, "ĐẶT LẠI về 00:00.0");
     }
 
@@ -182,10 +224,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateTimeText() {
         long ms = elapsed();
+
         long phut = ms / 60000;
         long giay = (ms % 60000) / 1000;
         long phanMuoi = (ms % 1000) / 100;
-        tvTime.setText(String.format(Locale.getDefault(), "%02d:%02d.%d", phut, giay, phanMuoi));
+
+        tvTime.setText(
+                String.format(
+                        Locale.getDefault(),
+                        "%02d:%02d.%d",
+                        phut,
+                        giay,
+                        phanMuoi
+                )
+        );
+
+        if (ms > 60_000L) {
+            tvTime.setTextColor(Color.RED);
+        } else {
+            tvTime.setTextColor(normalTimeColor);
+        }
     }
 
     private void updateUi() {

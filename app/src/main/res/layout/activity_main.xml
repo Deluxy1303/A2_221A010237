@@ -52,14 +52,37 @@
             android:text="@string/start" />
 
         <Button
+            android:id="@+id/btnLap"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Vòng" />
+
+        <Button
             android:id="@+id/btnReset"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="@string/reset" />
     </LinearLayout>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvLaps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:padding="8dp" />
+
+    </ScrollView>
+    
     <TextView
         android:id="@+id/tvRecreate"
         android:layout_width="wrap_content"
